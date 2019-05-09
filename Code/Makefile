@@ -2,5 +2,8 @@
 Dataset.o: Dataset.cpp
 	g++ -c Dataset.cpp
 
-test: test.cpp Dataset.o
-	g++ test.cpp Dataset.o -o test
+PSSMatrix.o: PSSMatrix.cpp
+	g++ -c PSSMatrix.cpp
+
+test: test.cpp Dataset.o PSSMatrix.o
+	g++ test.cpp Dataset.o PSSMatrix.o -o test
