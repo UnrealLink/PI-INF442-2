@@ -16,12 +16,13 @@ struct Data {
 
 class Dataset {
     public:
-        Dataset(const char* file);
+        Dataset(const char* file, int start=0, int end=-1);
         ~Dataset();
 
         int size();
         Data get(int i);
         void show(bool verbose);
+        void writeForSVM(const char* file, int p, int q);
 
     private:
         std::vector<Data> datas;

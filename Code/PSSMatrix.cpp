@@ -45,6 +45,7 @@ PSSMatrix::PSSMatrix(Dataset dataset, int p, int q, double threshold) {
     }
     
     this->threshold = threshold;
+    optimize_threshold(dataset, threshold-5, threshold+5, 0.1);
 
 }
 
@@ -62,4 +63,42 @@ double PSSMatrix::score(string sequence) {
 bool PSSMatrix::classify(string sequence) {
     double s = score(sequence);
     return s>threshold;
+}
+
+void PSSMatrix::optimize_threshold(Dataset dataset, double start, double end, double step) {
+    double best_score = 0;
+    double best_t = start;
+    
+    for (double t=start; t<end; t += step) {
+
+        this->threshold = t;
+
+        double tp = 0;
+        double fp = 0;
+        double tn = 0;
+        double fn = 0;
+        Data data;
+        string sequence;
+        
+        for (int i=0; i < dataset.size(); i++) {
+            Data data = dataset.get(i);
+            string sequence;
+            for (int j = p; j<data.sequence.size()-q; j++) {
+                sequence = data.sequence.substr(j-p, p+q);
+                if (this->classify(sequence)) {
+                    if (j == data.cleavage) {tp++;} else {fp++;}
+                } else {
+                    if (j == data.cleavage) {fn++;} else {tn++;}
+                }
+            }
+        }
+
+        double precision = tp/(tp+fp);
+        double recall = tp/(tp+fn);
+        double fscore = (2*precision*recall)/(precision+recall);
+
+        if (fscore > best_score) {best_score = fscore; best_t = t;}
+    }
+
+    this->threshold=best_t;
 }
