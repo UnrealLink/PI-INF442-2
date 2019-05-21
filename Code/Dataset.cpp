@@ -1,6 +1,6 @@
 #include "Dataset.hpp"
 
-Dataset::Dataset(const char* file, int start, int end) {
+Dataset::Dataset(const char* file, int start, int end, bool test) {
 
 	ifstream input(file);
 	
@@ -18,13 +18,13 @@ Dataset::Dataset(const char* file, int start, int end) {
         if (counter >= start && (end == -1 || counter < end)) {
             // each entry is composed of three line
             // first line is ignored
-
             getline(input, line); // second line gives the structure of the protein
             row.sequence = line;
-
-            getline(input, line); // third line gives the localization of the cleavage site
-            for (int i=0; i<line.size(); i++) {
-                if (line.at(i) == 'C') row.cleavage = i;
+            if (!test) {
+                getline(input, line); // third line gives the localization of the cleavage site
+                for (int i=0; i<line.size(); i++) {
+                    if (line.at(i) == 'C') row.cleavage = i;
+                }
             }
             datas.push_back(row);
         } else {

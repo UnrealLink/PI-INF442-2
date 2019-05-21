@@ -16,7 +16,7 @@ struct Data {
 
 class Dataset {
     public:
-        Dataset(const char* file, int start=0, int end=-1);
+        Dataset(const char* file, int start=0, int end=-1, bool test=false);
         ~Dataset();
 
         int size();
