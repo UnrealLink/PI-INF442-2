@@ -41,7 +41,7 @@ struct SmallData {
         string sequence;
 };
 
-struct svm_problem SVMModel::datasetToProblemSubstitution(Dataset dataset, const char* matrix) {
+struct svm_problem SVMModel::datasetToProblemSubstitution(Dataset dataset, const char* matrix_file) {
     struct svm_problem problem;
     struct svm_node* x_nodes;
 
@@ -51,7 +51,7 @@ struct svm_problem SVMModel::datasetToProblemSubstitution(Dataset dataset, const
         problem.l += data.sequence.size() - (p+q);
     }
 
-    substitutionMatrixInit(matrix);
+    substitutionMatrixInit(matrix_file);
 
     vector<SmallData> precomputedDatas;
 
@@ -105,12 +105,54 @@ double SVMModel::substitutionMatrix(string a, string b) {
 
 void SVMModel::substitutionMatrixInit(const char* file) {
     
-    ifstream input(file);
-	
-	if (input.fail()) {
-		cout<<"Cannot read from file "<<file<<" !"<<endl;
-		exit(1);
-	}
+    stringstream input;
+
+
+    if (file != NULL) {
+        ifstream input_file(file);
+        
+        if (input_file.fail()) {
+            cout<<"Cannot read from file "<<file<<" !"<<endl;
+            exit(1);
+        }
+
+        copy(istreambuf_iterator<char>(input_file),
+             istreambuf_iterator<char>(),
+             ostreambuf_iterator<char>(input));
+    } else {
+        input = stringstream(\
+"#  Matrix made by matblas from blosum62.iij\n"
+"#  * column uses minimum score \n"
+"#  BLOSUM Clustered Scoring Matrix in 1/2 Bit Units \n"
+"#  Blocks Database = /data/blocks_5.0/blocks.dat \n"
+"#  Cluster Percentage: >= 62 \n"
+"#  Entropy =   0.6979, Expected =  -0.5209 \n"
+"   A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W  Y  V  B  Z  X  * \n"
+"A  4 -1 -2 -2  0 -1 -1  0 -2 -1 -1 -1 -1 -2 -1  1  0 -3 -2  0 -2 -1  0 -4 \n"
+"R -1  5  0 -2 -3  1  0 -2  0 -3 -2  2 -1 -3 -2 -1 -1 -3 -2 -3 -1  0 -1 -4 \n"
+"N -2  0  6  1 -3  0  0  0  1 -3 -3  0 -2 -3 -2  1  0 -4 -2 -3  3  0 -1 -4 \n"
+"D -2 -2  1  6 -3  0  2 -1 -1 -3 -4 -1 -3 -3 -1  0 -1 -4 -3 -3  4  1 -1 -4 \n"
+"C  0 -3 -3 -3  9 -3 -4 -3 -3 -1 -1 -3 -1 -2 -3 -1 -1 -2 -2 -1 -3 -3 -2 -4 \n"
+"Q -1  1  0  0 -3  5  2 -2  0 -3 -2  1  0 -3 -1  0 -1 -2 -1 -2  0  3 -1 -4 \n"
+"E -1  0  0  2 -4  2  5 -2  0 -3 -3  1 -2 -3 -1  0 -1 -3 -2 -2  1  4 -1 -4 \n"
+"G  0 -2  0 -1 -3 -2 -2  6 -2 -4 -4 -2 -3 -3 -2  0 -2 -2 -3 -3 -1 -2 -1 -4 \n"
+"H -2  0  1 -1 -3  0  0 -2  8 -3 -3 -1 -2 -1 -2 -1 -2 -2  2 -3  0  0 -1 -4 \n"
+"I -1 -3 -3 -3 -1 -3 -3 -4 -3  4  2 -3  1  0 -3 -2 -1 -3 -1  3 -3 -3 -1 -4 \n"
+"L -1 -2 -3 -4 -1 -2 -3 -4 -3  2  4 -2  2  0 -3 -2 -1 -2 -1  1 -4 -3 -1 -4 \n"
+"K -1  2  0 -1 -3  1  1 -2 -1 -3 -2  5 -1 -3 -1  0 -1 -3 -2 -2  0  1 -1 -4 \n"
+"M -1 -1 -2 -3 -1  0 -2 -3 -2  1  2 -1  5  0 -2 -1 -1 -1 -1  1 -3 -1 -1 -4 \n"
+"F -2 -3 -3 -3 -2 -3 -3 -3 -1  0  0 -3  0  6 -4 -2 -2  1  3 -1 -3 -3 -1 -4 \n"
+"P -1 -2 -2 -1 -3 -1 -1 -2 -2 -3 -3 -1 -2 -4  7 -1 -1 -4 -3 -2 -2 -1 -2 -4 \n"
+"S  1 -1  1  0 -1  0  0  0 -1 -2 -2  0 -1 -2 -1  4  1 -3 -2 -2  0  0  0 -4 \n"
+"T  0 -1  0 -1 -1 -1 -1 -2 -2 -1 -1 -1 -1 -2 -1  1  5 -2 -2  0 -1 -1  0 -4 \n"
+"W -3 -3 -4 -4 -2 -2 -3 -2 -2 -3 -2 -3 -1  1 -4 -3 -2 11  2 -3 -4 -3 -2 -4 \n"
+"Y -2 -2 -2 -3 -2 -1 -2 -3  2 -1 -1 -2 -1  3 -3 -2 -2  2  7 -1 -3 -2 -1 -4 \n"
+"V  0 -3 -3 -3 -1 -2 -2 -3 -3  3  1 -2  1 -1 -2 -2  0 -3 -1  4 -3 -2 -1 -4 \n"
+"B -2 -1  3  4 -3  0  1 -1  0 -3 -4  0 -3 -3 -2  0 -1 -4 -3 -3  4  1 -1 -4 \n"
+"Z -1  0  0  1 -3  3  4 -2  0 -3 -3  1 -1 -3 -1  0 -1 -3 -2 -2  1  4 -1 -4 \n"
+"X  0 -1 -1 -1 -2 -1 -1 -1 -1 -1 -1 -1 -1 -1 -2  0  0 -2 -1 -1 -1 -1 -1 -4 \n"
+"* -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4  1 \n");
+    }
 
     string line = "#";
 
@@ -127,54 +169,40 @@ void SVMModel::substitutionMatrixInit(const char* file) {
     }
 
     while (getline(input, line)) {
-        std::stringstream s(line);
+        stringstream s(line);
         string splitline;
         getline(s, splitline, ' ');
         char acide = splitline.at(0);
         int i = 0;
         while (getline(s, splitline, ' ')) {
+            if (splitline == "") continue;
             matrix[acide][order[i]] = atof(splitline.c_str());
             if (abs(atof(splitline.c_str())) > matrix_max) matrix_max = atof(splitline.c_str());
+            i++;
         }
     }
 }
 
 
-SVMModel::SVMModel(Dataset dataset, int p, int q, int kernel_type, double C, double gamma, const char* matrix) {
+SVMModel::SVMModel(Dataset dataset, int p, int q, struct svm_parameter param, const char* matrix_file) {
 
-    // Setting parameters
-    param.svm_type = C_SVC;
-	param.kernel_type = kernel_type;
-	param.degree = 3;
-	param.gamma = gamma;	// 1/num_features
-	param.coef0 = 0;
-	param.nu = 0.5;
-	param.cache_size = 100;
-	param.C = C;
-	param.eps = 1e-3;
-	param.p = 0.1;
-	param.shrinking = 1;
-	param.probability = 0;
-	param.nr_weight = 0;
-	param.weight_label = NULL;
-	param.weight = NULL;
-
+    this->param = param;
     this->p = p;
     this->q = q;
 
     struct svm_problem problem;
 
     // Reading problem
-    if (kernel_type == PRECOMPUTED) {
-        problem = datasetToProblemSubstitution(dataset, matrix);
+    if (param.kernel_type == PRECOMPUTED) {
+        problem = datasetToProblemSubstitution(dataset, matrix_file);
+
     } else {
         problem = datasetToProblem(dataset);
     }
     
-
     // Training
     model = svm_train(&problem, &param);
-
+    
 }
 
 SVMModel::~SVMModel() {
@@ -194,6 +222,8 @@ bool SVMModel::classify(string sequence) {
 
     // Predicting label
     double result = svm_predict(model, nodes);
+
+    free(nodes);
 
     return (result > 0);
 }

@@ -55,6 +55,7 @@ int main(int argc, const char * argv[]){
             }
         }
 
+        cout << tp << ", " << fp << ", " << tn << ", " << fn << endl;
         double precision = tp/(tp+fp);
         double recall = tp/(tp+fn);
 
@@ -69,7 +70,27 @@ int main(int argc, const char * argv[]){
         Dataset trainset("../Data/SIG_13.red", 0, 1200);
         int p = 10;
         int q = 2;
-        SVMModel svmmodel(trainset, p, q);
+
+        // Setting parameters
+        struct svm_parameter param;
+
+        param.svm_type = C_SVC;
+        param.kernel_type = RBF;
+        param.degree = 3;
+        param.gamma = 0.0078125;	// 1/num_features
+        param.coef0 = 0;
+        param.nu = 0.5;
+        param.cache_size = 100;
+        param.C = 32;
+        param.eps = 1e-3;
+        param.p = 0.1;
+        param.shrinking = 1;
+        param.probability = 0;
+        param.nr_weight = 0;
+        param.weight_label = NULL;
+        param.weight = NULL;
+        
+        SVMModel svmmodel(trainset, p, q, param);
 
         Dataset testset("../Data/SIG_13.red", 1200, -1);
         double tp = 0;
@@ -103,12 +124,33 @@ int main(int argc, const char * argv[]){
     }
 
     if (option == 3) {
-        Dataset trainset("../Data/SIG_13.red", 0, 200);
+        Dataset trainset("../Data/SIG_13.red", 0, 100);
         int p = 10;
         int q = 2;
-        SVMModel svmmodel(trainset, p, q, PRECOMPUTED);
 
-        Dataset testset("../Data/SIG_13.red", 200, 240);
+        // Setting parameters
+        struct svm_parameter param;
+
+
+        param.svm_type = C_SVC;
+        param.kernel_type = PRECOMPUTED;
+        param.degree = 3;
+        param.gamma = 0.0078125;	// 1/num_features
+        param.coef0 = 0;
+        param.nu = 0.5;
+        param.cache_size = 100;
+        param.C = 1.2;
+        param.eps = 1e-3;
+        param.p = 0.1;
+        param.shrinking = 1;
+        param.probability = 0;
+        param.nr_weight = 0;
+        param.weight_label = NULL;
+        param.weight = NULL;
+        
+        SVMModel svmmodel(trainset, p, q, param);
+
+        Dataset testset("../Data/SIG_13.red", 100, 120);
         double tp = 0;
         double fp = 0;
         double tn = 0;
